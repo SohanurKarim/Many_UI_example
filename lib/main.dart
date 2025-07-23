@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:test_ui/facescanpage.dart';
 import 'package:test_ui/qr_code_scan.dart';
+import 'package:test_ui/theme_test/theme.dart';
 import 'package:test_ui/ui_page/audio.dart';
 import 'package:test_ui/ui_page/gird_view/gridview.dart';
 
@@ -9,25 +10,50 @@ late List<CameraDescription> _cameras;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  _cameras = await availableCameras(); // ✅ Initialize cameras
+  _cameras = await availableCameras();
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool isDarkMode = false;
+
+  void toggleTheme(){
+    setState(() {
+      isDarkMode = !isDarkMode;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const MyHomePage(),
+      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      darkTheme: AppTheme.dark,///ThemeData.dark(),
+      theme:AppTheme.light,
+      // ThemeData(
+      //   primarySwatch: Colors.blue,
+      // ),
+      home: MyHomePage(onThemeChanged: toggleTheme),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, this.onThemeChanged});
+  final VoidCallback? onThemeChanged;
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
 
+class _MyHomePageState extends State<MyHomePage> {
   void _showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -118,7 +144,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('UI Example')),
+      appBar: AppBar(title: Text('UI Example')),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -166,6 +192,10 @@ class MyHomePage extends StatelessWidget {
                 );
               },
               child: const Text('QR Code Scan'),
+            ),
+            ElevatedButton(
+              onPressed:widget.onThemeChanged,
+              child: const Text('Theme Button'),
             ),
           ],
         ),
